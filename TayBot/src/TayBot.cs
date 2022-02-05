@@ -12,7 +12,6 @@ namespace TayBot
     public class TayBot
     {
         private DiscordSocketClient _discordClient;
-        private TwitchPubSubClient _twitchPubSubClient;
 
         private string _tokenFilePath = "C:\\Users\\yello\\Desktop\\TayBotToken.txt";
         public static void Main(string[] args) => new TayBot().MainAsync().GetAwaiter().GetResult();

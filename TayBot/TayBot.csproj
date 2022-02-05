@@ -186,7 +186,6 @@
     <Compile Include="src\CommandHandler.cs" />
     <Compile Include="src\CommandModule.cs" />
     <Compile Include="src\TayBot.cs" />
-    <Compile Include="src\TwitchPubSubClient.cs" />
     <Compile Include="src\Wordle.cs" />
     <Compile Include="src\WordleUser.cs" />
     <Compile Include="src\WordleData.cs" />
