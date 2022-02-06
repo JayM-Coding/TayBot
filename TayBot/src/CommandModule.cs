@@ -24,7 +24,7 @@ namespace TayBot
             await ReplyAsync("noo don't say that.");
         }
 
-        [Command("guess")]
+        [Command("wordle")]
         [Summary("Play wordle")]
         public async Task GuessWordle(
             [Summary("Guess the 5 letter long wordle answer")]
@@ -33,6 +33,7 @@ namespace TayBot
             guess = guess.ToLower();
 
             ulong userId = Context.User.Id;
+
             WordleUser user;
             if (Wordle._UserDict.ContainsKey(userId))
             {
@@ -43,16 +44,39 @@ namespace TayBot
                 user = new WordleUser(userId);
                 Wordle._UserDict[userId] = user;
             }
-            string board = string.Empty;
+
             if (user.IsGameOver())
             {
-                board = user.GetGameBoardString();
-                await ReplyAsync("Current game has already finished:\n" + board);
+                // Check to see if the word used has changed or not.
+                int wordIndex = Wordle.CalculateWordleIndex();
+                if (wordIndex != user.GetWordIndex())
+                {
+                    // Reset the game if the word has changed
+                    user.ResetNewGame();
+                }
+                else
+                {
+                    // Print the current guesses if the game is over and the word hasn't changed.
+                    await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
+                    return;
+                }
             }
+
+            if (!Context.IsPrivate)
+            {
+                await ReplyAsync(embed: user.GetDiscordWordleEmbed(false));
+                return;
+            }
+
+            if (guess.Length <= 0)
+            {
+                await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
+                return;
+            }
+
 
             if (!Wordle.IsValidGuess(guess))
             {
-                board = user.GetGameBoardString();
                 await ReplyAsync("Invalid guess, please only use letters, max size of 5.\n\n");
                 return;
             }
@@ -67,10 +91,9 @@ namespace TayBot
             {
                 user.UpdateGameOver(false);
             }
-            board = user.GetGameBoardString();
             user.WriteToSave();
 
-            await ReplyAsync("Your guess result:\n" + board);
+            await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
         }
     }
 }

@@ -10,9 +10,13 @@ namespace TayBot
     {
         public ulong DiscordUserId { get; set; }
         public bool IsCurrentGameOver { get; set; }
+        public bool IsCurrentGameWon { get; set; }
         public int GamesPlayed { get; set; }
         public int GamesWon { get; set; }
         public int GuessesLeft { get; set; }
+
+        public int CurrentWordIndex { get; set; }
+
         public List<string> GuessResults { get; set; }
         public List<string> GuessStrings { get; set; }
     }
