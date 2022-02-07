@@ -40,6 +40,7 @@ namespace TayBot
             CommandService commandService = new CommandService();
             CommandHandler commandHandler = new CommandHandler(_discordClient, commandService);
             await commandHandler.InstallCommandsAsync();
+            Wordle.SetWordleAnswer(Wordle.CalculateWordleIndex());
         }
 
         private string GetBotToken()

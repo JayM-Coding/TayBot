@@ -11,6 +11,7 @@ namespace TayBot
 {
     public class CommandHandler
     {
+        public static char _CharPrefix = '!';
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
 
@@ -32,17 +33,15 @@ namespace TayBot
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
 
-            //prefix ends/command begins
             int argPos = 0;
             if (
-                !(message.HasCharPrefix('!', ref argPos) ||
+                !(message.HasCharPrefix(_CharPrefix, ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot
             ) return;
 
             var context = new SocketCommandContext(_client, message);
 
-            //exec command
             await _commands.ExecuteAsync(
                 context: context,
                 argPos: argPos,

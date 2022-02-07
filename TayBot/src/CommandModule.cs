@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +18,22 @@ namespace TayBot
             await ReplyAsync("Hey.");
         }
 
-        [Command("kys")]
-        [Summary("Check to see if taybot is awake")]
-        public async Task Kys()
+        [Command("setprefix")]
+        [Summary("Sets the command prefix used for TayBot")]
+        public async Task SetPrefix(
+            char prefix
+            )
         {
-            await ReplyAsync("noo don't say that.");
+            char currentPrefix = CommandHandler._CharPrefix;
+            CommandHandler._CharPrefix = prefix;
+            await ReplyAsync("Changed command prefix from " + currentPrefix + " to " + prefix);
+        }
+
+        [Command("help")]
+        [Summary("Shows the commands for TayBot")]
+        public async Task Help()
+        {
+            await ReplyAsync(embed: GetAboutEmbed());
         }
 
         [Command("wordle")]
@@ -33,6 +45,7 @@ namespace TayBot
             guess = guess.ToLower();
 
             ulong userId = Context.User.Id;
+            string username = Context.User.Username;
 
             WordleUser user;
             if (Wordle._UserDict.ContainsKey(userId))
@@ -41,7 +54,7 @@ namespace TayBot
             }
             else
             {
-                user = new WordleUser(userId);
+                user = new WordleUser(userId, username);
                 Wordle._UserDict[userId] = user;
             }
 
@@ -57,29 +70,35 @@ namespace TayBot
                 else
                 {
                     // Print the current guesses if the game is over and the word hasn't changed.
-                    await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
+                    await ReplyAsync(embed: user.GetDiscordWordleEmbed(Context.IsPrivate));
                     return;
                 }
             }
 
             if (!Context.IsPrivate)
             {
-                await ReplyAsync(embed: user.GetDiscordWordleEmbed(false));
+                await ReplyAsync(embed: user.GetDiscordWordleEmbed(Context.IsPrivate));
                 return;
             }
 
             if (guess.Length <= 0)
             {
-                await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
+                await ReplyAsync(embed: user.GetDiscordWordleEmbed(Context.IsPrivate));
                 return;
             }
-
 
             if (!Wordle.IsValidGuess(guess))
             {
                 await ReplyAsync("Invalid guess, please only use letters, max size of 5.\n\n");
                 return;
             }
+
+            if (!Wordle.IsGuessAcceptableWord(guess))
+            {
+                await ReplyAsync("The word " + guess + " is not an accepted word.");
+                return;
+            }
+
             string result = Wordle.HandleGuess(guess);
             user.AddGuessResults(result, guess);
             bool won = Wordle.IsWinningGuess(guess);
@@ -93,7 +112,21 @@ namespace TayBot
             }
             user.WriteToSave();
 
-            await ReplyAsync(embed: user.GetDiscordWordleEmbed(true));
+            await ReplyAsync(embed: user.GetDiscordWordleEmbed(Context.IsPrivate));
+        }
+
+        public Embed GetAboutEmbed()
+        {
+            EmbedBuilder builder = new EmbedBuilder
+            {
+                Title = "ABOUT TAYBOT",
+                Description = "Commands Tay currently supports: "
+            };
+            builder.AddField("wordle [5 letter guess]", "Guess the current word of the day. Please note that you can only guess in DMs to avoid spoilers in public channels.");
+            builder.AddField("mywordle", "TayBot will show your current wordle stats and guesses, without spoilers! Can use in public channels.");
+            builder.AddField("setprefix [prefix character]", "Sets TayBot's prefix for commands.");
+            builder.AddField("help", "displays this... well, how else did you see this?");
+            return builder.Build();
         }
     }
 }

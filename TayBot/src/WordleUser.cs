@@ -18,16 +18,16 @@ namespace TayBot
 
         private static int MAX_GUESSES = 6;
 
-        public WordleUser(ulong userId)
+        public WordleUser(ulong userId, string username)
         {
-            _filePath = USER_FILE_PATH + userId + ".json";
+            _filePath = USER_FILE_PATH + username + userId + ".json";
             if (File.Exists(_filePath))
             {
                 _user = ReadFromSave(_filePath);
             }
             else
             {
-               CreateNewSave(userId);
+               CreateNewSave(userId, username);
             }
         }
 
@@ -105,7 +105,7 @@ namespace TayBot
             EmbedBuilder builder = new EmbedBuilder
             {
                 Title = "WORDLE #" + Wordle.CalculateWordleIndex(),
-                Description = "Your current wordle stats:"
+                Description = "Wordle stats for " + _user.Username + ":"
             };
             
             if (_user.IsCurrentGameOver)
@@ -126,7 +126,6 @@ namespace TayBot
             }
 
             return builder.Build();
-
         }
 
         public void WriteToSave()
@@ -157,7 +156,7 @@ namespace TayBot
             }
         }
 
-        private void CreateNewSave(ulong userId)
+        private void CreateNewSave(ulong userId, string username)
         {
             _user = new WordleData();
             _user.DiscordUserId = userId;
@@ -169,6 +168,11 @@ namespace TayBot
             _user.GuessesLeft = MAX_GUESSES;
             _user.GuessResults = new List<string>();
             _user.GuessStrings = new List<string>();
+            _user.CorrectLetters = new List<string>();
+            _user.IncorrectLetters = new List<string>();
+            _user.PotentialLetters = new List<string>();
+            _user.MaybeLetters = new List<string>();
+            _user.Username = username;
             WriteToSave();
             return;
         }
