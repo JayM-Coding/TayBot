@@ -123,7 +123,7 @@ namespace TayBot
                 Description = "Commands Tay currently supports: "
             };
             builder.AddField("wordle [5 letter guess]", "Guess the current word of the day. Please note that you can only guess in DMs to avoid spoilers in public channels.");
-            builder.AddField("mywordle", "TayBot will show your current wordle stats and guesses, without spoilers! Can use in public channels.");
+            
             builder.AddField("setprefix [prefix character]", "Sets TayBot's prefix for commands.");
             builder.AddField("help", "displays this... well, how else did you see this?");
             return builder.Build();
